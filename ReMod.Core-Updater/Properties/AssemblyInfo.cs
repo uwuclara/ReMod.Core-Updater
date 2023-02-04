@@ -13,7 +13,7 @@ using MelonLoader;
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: MelonInfo(typeof(ReMod.CoreUpdater.Main), "ReMod.Core-Updater", "1.0.0", "Neeko.")]
+[assembly: MelonInfo(typeof(ReMod.CoreUpdater.Main), "ReMod.Core-Updater", "1.0.1", "Neeko.")]
 [assembly: MelonGame("VRChat")]
 [assembly: MelonColor(System.ConsoleColor.Magenta)]
 [assembly: MelonPriority(-100)]
@@ -28,6 +28,6 @@ using MelonLoader;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyVersion("1.0.1")]
+[assembly: AssemblyFileVersion("1.0.1")]
 [assembly: ComVisible(false)] 

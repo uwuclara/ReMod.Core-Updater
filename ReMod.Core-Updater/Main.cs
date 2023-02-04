@@ -1,6 +1,5 @@
 ﻿using System;
 using MelonLoader;
-using System.Collections;
 using System.IO;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -12,30 +11,41 @@ namespace ReMod.CoreUpdater
     {
         /* ----------------------------------  Settings ---------------------------------- */
         private const string fileName     =  "ReMod.Core.dll";                                                                        // File name + extension of the mod/plugin
-        private const string directory    =  "UserLibs";                                                                              // dir where to save it in vrc folder
+        private const string directory    =  "Mods";                                                                                  // dir where to save it in vrc folder
         private const string downloadLink =  "https://github.com/Cyril-Xd/ReMod.Core-Quest/releases/latest/download/ReMod.Core.dll";  // Download link
         /* ----------------------------------  Settings ---------------------------------- */
         
         
         private static readonly string filePath =  Path.Combine(Environment.CurrentDirectory, directory, fileName);
-            
-        public override void OnApplicationStarted()
+        private static readonly string userLibsfilePath =  Path.Combine(Environment.CurrentDirectory, "UserLibs", fileName); 
+        // UserLibs are loaded before plugins therefore it won't load new one. If u know a way how to unload assembly from UserLibs, tell me.
+
+        public override void OnApplicationEarlyStart()
         {
-            MelonCoroutines.Start(download());
+            if (!File.Exists(userLibsfilePath))
+                download();
+            else
+                removeAndStop();
         }
 
-        private static IEnumerator download()
+        private static void download()
         {
             var request = UnityWebRequest.Get(downloadLink);
-            yield return request.Send();
-
-            if (!request.isHttpError || !request.isNetworkError)
+            request.Send();
+            
+            do
             {
-                var byteArray = request.downloadHandler.data;
-                handle(byteArray);
-            }
-            else
-                MelonLogger.Msg("Failed downloading latest " + fileName + " " + request.GetError());
+                if (!request.isDone) continue;
+                if (!request.isHttpError || !request.isNetworkError)
+                {
+                    var byteArray = request.downloadHandler.data;
+                    handle(byteArray);
+                }
+                else
+                    MelonLogger.Msg(ConsoleColor.Red, "Failed downloading latest " + fileName + " " + request.GetError());
+                break;
+            } 
+            while (true);
         }
 
         private static void handle(byte[] bytes)
@@ -45,7 +55,7 @@ namespace ReMod.CoreUpdater
                 if (calculateHash(File.ReadAllBytes(filePath)) != calculateHash(bytes))
                     save(bytes);
                 else
-                    MelonLogger.Msg(fileName + " is up to date!");
+                    MelonLogger.Msg(ConsoleColor.Green, fileName + " is up to date!");
             }
             else
                 save(bytes);
@@ -55,8 +65,7 @@ namespace ReMod.CoreUpdater
         {
             var temp = File.Create(filePath); temp.Close(); temp.Dispose();
             File.WriteAllBytes(filePath, bytes);
-            MelonLogger.Msg(fileName + " got updated!");
-            stopapp();
+            MelonLogger.Msg(ConsoleColor.Green, fileName + " got updated!");
         }
         
         private static string calculateHash(byte[] byteArray)
@@ -71,9 +80,11 @@ namespace ReMod.CoreUpdater
             }
         }
 
-        private static void stopapp()
+        private static void removeAndStop()
         {
-            MelonLogger.Msg(ConsoleColor.Cyan, "DOWNLOADED NEW " + fileName + " UPDATE AND VRCHAT NEEDS TO BE RESTARTED!");
+            File.Delete(userLibsfilePath);
+            MelonLogger.Msg(ConsoleColor.Cyan, 
+                "FOUND " + fileName + " IN USERLIBS AND VRCHAT NEEDS TO BE RESTARTED TO MAKE AUTOUPDATER WORK. PLEASE DON'T PUT " + fileName + " in USERLIBS FOLDER!");
             Application.Quit();
         }
     }
