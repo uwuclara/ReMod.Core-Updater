@@ -11,12 +11,11 @@ namespace ReMod.CoreUpdater
     {
         /* ----------------------------------  Settings ---------------------------------- */
         private const string fileName     =  "ReMod.Core.dll";                                                                        // File name + extension of the mod/plugin
-        private const string directory    =  "Mods";                                                                                  // dir where to save it in vrc folder
         private const string downloadLink =  "https://github.com/Cyril-Xd/ReMod.Core-Quest/releases/latest/download/ReMod.Core.dll";  // Download link
         /* ----------------------------------  Settings ---------------------------------- */
         
         
-        private static readonly string filePath =  Path.Combine(Environment.CurrentDirectory, directory, fileName);
+        private static readonly string modsfilePath =  Path.Combine(Environment.CurrentDirectory, "Mods", fileName);
         private static readonly string userLibsfilePath =  Path.Combine(Environment.CurrentDirectory, "UserLibs", fileName); 
         // UserLibs are loaded before plugins therefore it won't load new one. If u know a way how to unload assembly from UserLibs, tell me.
 
@@ -50,9 +49,9 @@ namespace ReMod.CoreUpdater
 
         private static void handle(byte[] bytes)
         {
-            if (File.Exists(filePath))
+            if (File.Exists(modsfilePath))
             {
-                if (calculateHash(File.ReadAllBytes(filePath)) != calculateHash(bytes))
+                if (calculateHash(File.ReadAllBytes(modsfilePath)) != calculateHash(bytes))
                     save(bytes);
                 else
                     MelonLogger.Msg(ConsoleColor.Green, fileName + " is up to date!");
@@ -63,8 +62,8 @@ namespace ReMod.CoreUpdater
 
         private static void save(byte[] bytes)
         {
-            var temp = File.Create(filePath); temp.Close(); temp.Dispose();
-            File.WriteAllBytes(filePath, bytes);
+            var temp = File.Create(modsfilePath); temp.Close(); temp.Dispose();
+            File.WriteAllBytes(modsfilePath, bytes);
             MelonLogger.Msg(ConsoleColor.Green, fileName + " got updated!");
         }
         
@@ -83,7 +82,7 @@ namespace ReMod.CoreUpdater
         private static void removeAndStop()
         {
             File.Delete(userLibsfilePath);
-            MelonLogger.Msg(ConsoleColor.Cyan, 
+            MelonLogger.Msg(ConsoleColor.Yellow, 
                 "FOUND " + fileName + " IN USERLIBS AND VRCHAT NEEDS TO BE RESTARTED TO MAKE AUTOUPDATER WORK. PLEASE DON'T PUT " + fileName + " in USERLIBS FOLDER!");
             Application.Quit();
         }
